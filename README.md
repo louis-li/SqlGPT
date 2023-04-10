@@ -1,5 +1,5 @@
 <h1 align="center">
-  ChatGPT with your data powered by Azure OpenAI  💡
+  ChatGPT with SQL Server by Azure OpenAI  💡
 </h1>
 
 <p align="center">
