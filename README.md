@@ -22,8 +22,9 @@ Note: Make sure you have docker installed
 1. Open dowload this repository with `git clone https://github.com/louis-li/SqlGPT.git`
 2. in application folder, mv .env.sample .env
 3. Edit .env file and add your Azure OpenAI key and end point
-3. Run `docker-compose build && docker-compose up`
-4. Navigate to http://localhost:5010/
+4. Edit SQL Server/database/username/password info in .env file
+5. Run `docker-compose build && docker-compose up`
+6. Navigate to http://localhost:5010/
 
 To stop just run Ctrl + C
 
