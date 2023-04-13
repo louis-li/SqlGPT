@@ -84,9 +84,9 @@ def api_answer():
     try:
 
         answer, thought = sql_agent.run(question)
-        print(answer)
+        print(thought)
 
-        return {'answer':answer}
+        return {'answer':answer, 'thought': thought}
     except Exception as e:
         # print whole traceback
         traceback.print_exc()

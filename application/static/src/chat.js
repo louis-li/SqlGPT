@@ -52,13 +52,19 @@ function submitForm(event){
             document.getElementById("messages").innerHTML += msg_html;
             let chatWindow = document.getElementById("messages-container");
             chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            //thought
+            though_html = '<div class="bg-indigo-500 text-white p-2 rounded-lg mb-2 self-start"><code class="text-sm">'
+            though_html += data.thought
+            though_html += '</code></div>'
+            document.getElementById("thought").innerHTML = though_html;
+            let thoughtWindow = document.getElementById("thought-container");
+            thoughtWindow.scrollTop = thoughtWindow.scrollHeight;
             }
             document.getElementById("button-submit").innerHTML = 'Send';
             document.getElementById("button-submit").disabled = false;
             let chatHistory = [message, data.answer || ''];
             localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-
-            
 
 
         })

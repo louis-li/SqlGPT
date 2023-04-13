@@ -108,7 +108,7 @@ class HtmlCallbackHandler (BaseCallbackHandler):
         **kwargs: Any,
     ) -> None:
         """Print out the log in specified color."""
-        self.html += f"<span style='color:{color}'>{ch(action)}</span><br>"
+        self.html += f"<span'>{ch(action)}</span><br>"
 
     def on_tool_end(
         self,
@@ -132,20 +132,20 @@ class HtmlCallbackHandler (BaseCallbackHandler):
         **kwargs: Optional[str],
     ) -> None:
         """Run when agent ends."""
-        self.html += f"<span style='color:{color}'>{ch(text)}</span><br>"
+        self.html += f"<span'>{ch(text)}</span><br>"
 
     def on_agent_finish(
         self, finish: AgentFinish, color: Optional[str] = None, **kwargs: Any
     ) -> None:
         """Run on agent end."""
-        self.html += f"<span style='color:{color}'>{ch(finish.log)}</span><br>"
+        self.html += f"<span '>{ch(finish.log)}</span><br>"
 
     def on_agent_action(
         self, action: AgentAction, color: Optional[str] = None, **kwargs: Any
     ) -> Any:
         """Run on agent action."""
         # print(action.log)
-        self.html += f"<span style='color:{color}'>{ch(action.log)}</span><br>"
+        self.html += f"<span '>{ch(action.log)}</span><br>"
         
     def on_llm_new_token(self, token: str, **kwargs: Any) -> None:
         """Do nothing."""
