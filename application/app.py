@@ -36,26 +36,7 @@ if platform.system() == "Windows":
     temp = pathlib.PosixPath
     pathlib.PosixPath = pathlib.WindowsPath
 
-# load the prompts
-with open("prompts/combine_prompt.txt", "r") as f:
-    template = f.read()
-
-with open("prompts/combine_prompt_hist.txt", "r") as f:
-    template_hist = f.read()
-
-with open("prompts/question_prompt.txt", "r") as f:
-    template_quest = f.read()
-
-with open("prompts/chat_combine_prompt.txt", "r") as f:
-    chat_combine_template = f.read()
-
-with open("prompts/chat_reduce_prompt.txt", "r") as f:
-    chat_reduce_template = f.read()
-
-if os.getenv("API_KEY") is not None:
-    api_key_set = True
-else:
-    api_key_set = False
+api_key_set = True
 
 
 app = Flask(__name__)
@@ -101,42 +82,8 @@ def api_answer():
 
     # use try and except  to check for exception
     try:
-        # check if the vectorstore is set
-        
-        # create a prompt template
-        # if history:
-        #     history = json.loads(history)
-        #     template_temp = template_hist.replace("{historyquestion}", history[0]).replace("{historyanswer}",
-        #                                                                                    history[1])
-        #     c_prompt = PromptTemplate(input_variables=["summaries", "question"], template=template_temp,
-        #                               template_format="jinja2")
-        # else:
-        #     c_prompt = PromptTemplate(input_variables=["summaries", "question"], template=template,
-        #                               template_format="jinja2")
 
-        # q_prompt = PromptTemplate(input_variables=["context", "question"], template=template_quest,
-        #                           template_format="jinja2")
-        # llm = AzureChatOpenAI(openai_api_key=api_key,
-        #                         openai_api_base=api_base, 
-        #                         openai_api_type=os.getenv("OPENAI_API_TYPE"),
-        #                         openai_api_version=os.getenv("OPENAI_API_VERSION"),
-        #                         deployment_name=os.getenv("DEPLOYMENT_NAME"))
-        # messages_combine = [
-        #     SystemMessagePromptTemplate.from_template(chat_combine_template),
-        #     HumanMessagePromptTemplate.from_template("{question}")
-        # ]
-        # p_chat_combine = ChatPromptTemplate.from_messages(messages_combine)
-        # messages_reduce = [
-        #     SystemMessagePromptTemplate.from_template(chat_reduce_template),
-        #     HumanMessagePromptTemplate.from_template("{question}")
-        # ]
-        # p_chat_reduce = ChatPromptTemplate.from_messages(messages_reduce)
-
-        # question_generator = LLMChain(llm=llm, prompt=CONDENSE_QUESTION_PROMPT)
-        # doc_chain = load_qa_chain(llm, chain_type="map_reduce", combine_prompt=p_chat_combine, )
-        # chat_history = []
-        # result = chain({"question": question, "chat_history": chat_history})
-        answer = sql_agent.run(question)
+        answer, thought = sql_agent.run(question)
         print(answer)
 
         return {'answer':answer}
