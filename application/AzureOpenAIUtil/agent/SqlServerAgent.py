@@ -90,12 +90,14 @@ class HtmlCallbackHandler (BaseCallbackHandler):
         self, serialized: Dict[str, Any], inputs: Dict[str, Any], **kwargs: Any
     ) -> None:
         """Print out that we are entering a chain."""
-        class_name = serialized["name"]
-        self.html += f"Entering chain: {ch(class_name)}<br>"
+        # class_name = serialized["name"]
+        # self.html += f"Entering chain: {ch(class_name)}<br>"
+        pass
 
     def on_chain_end(self, outputs: Dict[str, Any], **kwargs: Any) -> None:
         """Print out that we finished a chain."""
-        self.html += f"Finished chain<br>"
+        # self.html += f"Finished chain<br>"
+        pass
 
     def on_chain_error(self, error: Exception, **kwargs: Any) -> None:
         self.html += f"<span style='color:red'>Chain error: {ch(error)}</span><br>"
