@@ -40,17 +40,6 @@ api_key_set = True
 
 
 app = Flask(__name__)
-openai.api_type = "azure"
-openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.api_base = os.getenv("OPENAI_API_BASE")
-openai.api_version = os.getenv("OPENAI_API_VERSION") #openai api version
-llm=AzureOpenAI(temperature=0, deployment_name=os.getenv('DEPLOYMENT_NAME'))
-sql_agent = SqlServer.SqlServer(llm, 
-                                Server=os.getenv('AZURE_SQL_SERVER'), 
-                                Database=os.getenv('AZURE_SQL_DATABASE'), 
-                                Username=os.getenv('AZURE_SQL_USERNAME'), 
-                                Password=os.getenv('AZURE_SQL_PASSWORD'), 
-                                topK=15)
 
 async def async_generate(chain, question, chat_history):
     result = await chain.arun({"question": question, "chat_history": chat_history})
@@ -71,13 +60,34 @@ def run_async_chain(chain, question, chat_history):
 def home():
     return render_template("index.html", api_key_set=api_key_set)
 
-
+def get_value(item, key):
+    if item is None or item == '':
+        return os.getenv(key)
+    else:
+        return item
+    
 @app.route("/api/answer", methods=["POST"])
 def api_answer():
     data = request.get_json()
     question = data["question"]
     history = data["history"]
+    # port=data['port']
+    # odbc_ver=data['odbc_ver']
+    topK=data['topK']
+    openai_key=data['openai_key']
     print('-' * 5)
+    openai.api_base = get_value(data['openai_base'], "OPENAI_API_BASE")
+    openai.api_key = get_value(data['openai_key'], "OPENAI_API_KEY")
+    openai.api_type = "azure"  
+    openai.api_version = os.getenv("OPENAI_API_VERSION") #openai api version
+    llm=AzureOpenAI(temperature=0, deployment_name=os.getenv('DEPLOYMENT_NAME'))
+    sql_agent = SqlServer.SqlServer(llm, 
+                                    Server=get_value(data['sqlserver'], 'AZURE_SQL_SERVER'), 
+                                    Database=get_value(data['database'], 'AZURE_SQL_DATABASE'), 
+                                    Username=get_value(data['username'], 'AZURE_SQL_USERNAME'), 
+                                    Password=get_value(data['password'], 'AZURE_SQL_PASSWORD'), 
+                                    topK=15)
+
 
 
     # use try and except  to check for exception

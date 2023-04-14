@@ -18,8 +18,9 @@
     <header class="bg-white p-2 flex justify-between items-center">
       <h1 class="text-lg font-medium">SqlGPT with Azure OpenAI💡</h1>
         <div>
-      <a href="https://github.com/louis-li/sqlgpt" class="text-blue-500 hover:text-blue-800 text-sm">About</a>
-            </div>
+          <a href="https://github.com/louis-li/sqlgpt" class="text-blue-500 hover:text-blue-800 text-sm">About</a>
+          <button class="text-sm text-yellow-500 hover:text-yellow-800" onclick="setSQLConnection()">Config</button>
+        </div>
     </header>
 
   
@@ -78,107 +79,48 @@
  
 </div>
 
-
-
-
-{% if not api_key_set %}
-
-<div class="fixed z-10 overflow-y-auto top-0 w-full left-0 show" id="modal">
+<div class="fixed z-10 overflow-y-auto top-0 w-full left-0 show" id="sqlmodal">
   <div class="flex items-center justify-center min-height-100vh pt-4 px-4 pb-20 text-center sm:block sm:p-0">
     <div class="fixed inset-0 transition-opacity">
       <div class="absolute inset-0 bg-gray-900 opacity-75" />
     </div>
     <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
     <div class=" text-sm inline-block align-center bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-       <form id="api-key-form">
+       <form id="config-form">
         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-        <h2>Before you can start using DocsGPT we need you to provide an API key for llm. Currently, we support only OpenAI but soon many more. You can find it <a class="text-blue-500 hover:text-blue-800" href="https://platform.openai.com/account/api-keys">here</a></h2><br>
-        <label>OpenAI API key:</label>
-
-        <input id="api-key-input" type="password" class="w-full bg-gray-100 p-2 mt-2 mb-3" placeholder="Paste you Api Key here">
-
-      </div>
-      <div class="bg-gray-200 px-4 py-3 text-right">
-        <button type="submit" class="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-700 mr-2">Save</button>
-
-      </div>
-            </form>
+          <h2>Enter your Azure SQL connection here:</h2><br>
+          <label>SQL Server:</label>
+          <input id="sqlserver" class="w-full bg-gray-100 p-2 mt-2 mb-3" placeholder="Enter the full uri/severname here. E.g. https://sqlgpt.openai.azure.com">
+          <br>
+          <label>Database:</label>
+          <input id="database" class="w-full bg-gray-100 p-2 mt-2 mb-3" placeholder="Enter your database name here">
+          <br>
+          <label>Username:</label>
+          <input id="username" class="w-full bg-gray-100 p-2 mt-2 mb-3" placeholder="Enter your username here">
+          <br>
+          <label>Password:</label>
+          <input id="password" type="password" class="w-full bg-gray-100 p-2 mt-2 mb-3" placeholder="Paste you password here">
+          <br>
+          <label>Azure OpenAI Endpoint:</label>
+          <input id="openai_base"class="w-full bg-gray-100 p-2 mt-2 mb-3" placeholder="Enter your Azure OpenAI Endpoint here">
+          <br>
+          <label>Azure OpenAI Key:</label>
+          <input id="openai_key" type="password" class="w-full bg-gray-100 p-2 mt-2 mb-3" placeholder="Paste you API Key here">
+          <br>
+        </div>
+        <div class="bg-gray-200 px-4 py-3 text-right">
+            <button type="submit" class="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-700 mr-2">OK</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
-{% endif %}
 
+<script>
+  document.getElementById('sqlmodal').classList.toggle('hidden')
+</script>
 
-
-      <script>
-          function docsIndex() {
-                // loads latest index 
-                // and stores it in localStorage
-                fetch('/api/combine')
-                    .then(response => response.json())
-                    .then(data => {
-                        localStorage.setItem("docsIndex", JSON.stringify(data));
-                        localStorage.setItem("docsIndexDate", Date.now());
-                        generateOptions()
-                    }
-
-                )
-
-            }
-          function generateOptions(){
-                docsIndex = localStorage.getItem('docsIndex')
-                // create option on select with id select-docs
-                var select = document.getElementById("select-docs");
-                // convert docsIndex to json
-                docsIndex = JSON.parse(docsIndex)
-                // create option for each key in docsIndex
-                for (var key in docsIndex) {
-                    var option = document.createElement("option");
-                    if (docsIndex[key].location == 'docshub'){
-                        if (docsIndex[key].name == docsIndex[key].language) {
-                            option.text = docsIndex[key].name + " " + docsIndex[key].version;
-                            option.value = docsIndex[key].name + "/" + ".project" + "/" + docsIndex[key].version + "/{{ embeddings_choice }}/";
-                            if (docsIndex[key].model == "{{ embeddings_choice }}") {
-                                select.add(option);
-                            }
-                        }
-                        else {
-                            option.text = docsIndex[key].name + " " + docsIndex[key].version;
-                            option.value = docsIndex[key].language + "/" + docsIndex[key].name + "/" + docsIndex[key].version + "/{{ embeddings_choice }}/";
-                            if (docsIndex[key].model == "{{ embeddings_choice }}") {
-                                select.add(option);
-                            }
-                        }
-                    }
-                    else {
-                        option.text = docsIndex[key].name;
-                        option.value = docsIndex[key].location + "/" + docsIndex[key].name;
-                        select.add(option);
-                    }
-                }
-
-          }
-        {% if not api_key_set %}
-        if (localStorage.getItem('apiKey') === null) {
-            console.log("apiKey is not set")
-            document.getElementById('modal').classList.toggle('hidden')
-        }
-        {% endif %}
-        if (localStorage.getItem('docsIndex') === null) {
-            console.log("docsIndex is not set")
-            docsIndex()
-        }
-        else if (localStorage.getItem("docsIndexDate") < Date.now() - 60000) {
-            console.log("docsIndex is older than 1 minutes")
-            docsIndex()
-        }
-
-        generateOptions()
-
-  </script>
-    {% if not api_key_set %}
-    <script src="{{url_for('static',filename='src/authapi.js')}}"></script>
-    {% endif %}
+  <!-- <script src="{{url_for('static',filename='src/authapi.js')}}"></script> -->
   <script src="{{url_for('static',filename='src/chat.js')}}"></script>
   <script src="{{url_for('static',filename='src/choiceChange.js')}}"></script>
 
