@@ -39,7 +39,8 @@ function submitForm(event){
             database: localStorage.getItem('database'),
             username: localStorage.getItem('username'),
             password: localStorage.getItem('password'),
-            history: localStorage.getItem('chatHistory'),
+            openai_deployment: localStorage.getItem('openai_deployment'),
+            history: localStorage.getItem('chatHistory')})
     }).then((response)=> response.json())
     .then(data => {
             console.log('Success:', data);
