@@ -383,7 +383,7 @@ class HtmlCallbackHandler (BaseCallbackHandler):
         **kwargs: Any,
     ) -> None:
         """Print out the log in specified color."""
-        self.html += f"<span'>{ch(action)}</span><br>"
+        self.html += f"<span style='bold'>{ch(action)}</span><br>"
 
     def on_tool_end(
         self,
@@ -394,10 +394,10 @@ class HtmlCallbackHandler (BaseCallbackHandler):
         **kwargs: Any,
     ) -> None:
         """If not the final action, print out observation."""
-        self.html += f"{ch(observation_prefix)}<br><span style='color:{color}'>{ch(output)}</span><br>{ch(llm_prefix)}<br>"
+        self.html += f"<span  style='bold'>{ch(observation_prefix)}</span><br>{ch(output)}<br>{ch(llm_prefix)}<br>"
 
     def on_tool_error(self, error: Exception, **kwargs: Any) -> None:
-        self.html += f"<span style='color:red'>Tool error: {ch(error)}</span><br>"
+        self.html += f"<br><span style='color:red'>Tool error: {ch(error)}</span><br>"
 
     def on_text(
         self,

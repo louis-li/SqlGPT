@@ -21,7 +21,6 @@ from langchain.prompts.chat import (
 )
 from werkzeug.utils import secure_filename
 from AzureOpenAIUtil import SqlServer
-import openai
 
 from error import bad_request
 
@@ -74,15 +73,11 @@ def api_answer():
     # port=data['port']
     # odbc_ver=data['odbc_ver']
     # topK=data['topK']
-    openai_key=data['openai_key']
     print('-' * 5)
-    openai.api_base = get_value(data['openai_base'], "OPENAI_API_BASE")
-    print("Azure OpenAI API Base: ", openai.api_base)
-    openai.api_key = get_value(data['openai_key'], "OPENAI_API_KEY")
-    print("Azure OpenAI key:"   , openai.api_key)
-    openai.api_type = "azure"  
-    openai.api_version = os.getenv("OPENAI_API_VERSION") #openai api version
-    llm=AzureOpenAI(temperature=0, deployment_name=get_value(data['openai_deployment'], "DEPLOYMENT_NAME"))
+    os.environ['OPENAI_API_BASE']= get_value(data['openai_base'], "OPENAI_API_BASE")
+    llm=AzureOpenAI(temperature=0,
+                    openai_api_key = get_value(data['openai_key'], "OPENAI_API_KEY"),
+                    deployment_name=get_value(data['openai_deployment'], "DEPLOYMENT_NAME"))
     print("Deployment name: ", llm.deployment_name)
     sql_agent = SqlServer.SqlServer(llm, 
                                     Server=get_value(data['sqlserver'], 'AZURE_SQL_SERVER'), 
