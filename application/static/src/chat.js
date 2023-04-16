@@ -33,10 +33,14 @@ function submitForm(event){
         },
 
         body: JSON.stringify({question: message,
-            api_key: localStorage.getItem('apiKey'),
-            embeddings_key: localStorage.getItem('apiKey'),
-            history: localStorage.getItem('chatHistory'),
-            active_docs: localStorage.getItem('activeDocs')}),
+            openai_base: localStorage.getItem('openai_base'),
+            openai_key: localStorage.getItem('openai_key'),
+            sqlserver: localStorage.getItem('sqlserver'),
+            database: localStorage.getItem('database'),
+            username: localStorage.getItem('username'),
+            password: localStorage.getItem('password'),
+            openai_deployment: localStorage.getItem('openai_deployment'),
+            history: localStorage.getItem('chatHistory')})
     }).then((response)=> response.json())
     .then(data => {
             console.log('Success:', data);

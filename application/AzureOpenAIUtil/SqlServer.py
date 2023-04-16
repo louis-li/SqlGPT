@@ -11,7 +11,7 @@ class SqlServer:
     def __init__(self, llm, Server, Database, Username, Password, port=1433, odbc_ver=18, topK=10) -> None:
         
         odbc_conn = 'Driver={ODBC Driver '+ str(odbc_ver) + ' for SQL Server};Server=tcp:' + \
-            Server + f',{port};Database={Database};Uid={Username};Pwd={Password};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
+            Server + f';Database={Database};Uid={Username};Pwd={Password};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
         params = urllib.parse.quote_plus(odbc_conn)
         self.conn_str = 'mssql+pyodbc:///?odbc_connect={}'.format(params)
 

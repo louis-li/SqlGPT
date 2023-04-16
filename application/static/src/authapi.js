@@ -1,19 +1,25 @@
-function resetApiKey() {
-  const modal = document.getElementById("modal");
-  modal.classList.toggle("hidden");
-}
 
-const apiKeyForm = document.getElementById("api-key-form");
-if (apiKeyForm) {
-  apiKeyForm.addEventListener("submit", function(event) {
+function setSQLConnection() {
+  const modal = document.getElementById("sqlmodal");
+  
+  modal.classList.toggle("hidden");
+
+}
+const configForm = document.getElementById("config-form");
+if (configForm) {
+  configForm.addEventListener("submit", function(event) {
     event.preventDefault();
 
-    const apiKeyInput = document.getElementById("api-key-input");
-    const apiKey = apiKeyInput.value;
+    localStorage.setItem("sqlserver", document.getElementById("sqlserver").value);
+    localStorage.setItem("database", document.getElementById("database").value);
+    localStorage.setItem("username", document.getElementById("username").value);
+    localStorage.setItem("password", document.getElementById("password").value);
+    localStorage.setItem("openai_base", document.getElementById("openai_base").value);
+    localStorage.setItem("openai_key", document.getElementById("openai_key").value);
+    localStorage.setItem("openai_deployment", document.getElementById("openai_deployment").value);
+    
+    const modal = document.getElementById("sqlmodal");
 
-    localStorage.setItem("apiKey", apiKey);
-
-    apiKeyInput.value = "";
     modal.classList.toggle("hidden");
   });
 }
