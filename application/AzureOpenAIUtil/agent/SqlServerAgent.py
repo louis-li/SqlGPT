@@ -1,6 +1,7 @@
 """SQL agent."""
 from __future__ import annotations
 from typing import Any, List, Optional
+import ast
 
 from langchain.agents.agent import AgentExecutor
 from langchain.agents.mrkl.base import ZeroShotAgent
@@ -86,7 +87,7 @@ class SQLDatabase:
         metadata: Optional[MetaData] = None,
         ignore_tables: Optional[List[str]] = None,
         include_tables: Optional[List[str]] = None,
-        sample_rows_in_table_info: int = 3,
+        sample_rows_in_table_info: int = 2,
         indexes_in_table_info: bool = False,
         custom_table_info: Optional[dict] = None,
         view_support: Optional[bool] = False,
@@ -159,14 +160,14 @@ class SQLDatabase:
                 if table in intersection
             )
 
-        self._metadata = metadata or MetaData()
-        # including view support if view_support = true
-        self._metadata.reflect(
-            views=view_support,
-            bind=self._engine,
-            # only=self._usable_tables,
-            # schema=self._schema,
-        )
+        # self._metadata = metadata or MetaData()
+        # # including view support if view_support = true
+        # self._metadata.reflect(
+        #     views=view_support,
+        #     bind=self._engine,
+        #     # only=self._usable_tables,
+        #     # schema=self._schema,
+        # )
 
     @classmethod
     def from_uri(
@@ -187,12 +188,12 @@ class SQLDatabase:
             return self._include_tables
         return self._all_tables - self._ignore_tables
 
-    def get_table_names(self) -> Iterable[str]:
-        """Get names of tables available."""
-        warnings.warn(
-            "This method is deprecated - please use `get_usable_table_names`."
-        )
-        return self.get_usable_table_names()
+    # def get_table_names(self) -> Iterable[str]:
+    #     """Get names of tables available."""
+    #     warnings.warn(
+    #         "This method is deprecated - please use `get_usable_table_names`."
+    #     )
+    #     return self.get_usable_table_names()
 
     @property
     def table_info(self) -> str:
@@ -217,10 +218,7 @@ class SQLDatabase:
             all_table_names = table_names
 
         meta_tables = [
-            tbl
-            for tbl in self._metadata.sorted_tables
-            if tbl.name in set(all_table_names)
-            and not (self.dialect == "sqlite" and tbl.name.startswith("sqlite_"))
+            tbl for tbl  in set(all_table_names)
         ]
 
         tables = []
@@ -230,19 +228,60 @@ class SQLDatabase:
                 continue
 
             # add create table command
-            create_table = str(CreateTable(table).compile(self._engine))
-            table_info = f"{create_table.rstrip()}"
-            has_extra_info = (
-                self._indexes_in_table_info or self._sample_rows_in_table_info
-            )
-            if has_extra_info:
-                table_info += "\n\n/*"
-            if self._indexes_in_table_info:
-                table_info += f"\n{self._get_table_indexes(table)}\n"
+            table_name = table.split('.')
+            if len(table_name) == 2:
+                schema = table_name[0]
+                table_name = table_name[1]
+            # metadata_obj = MetaData(schema=schema)
+            # metadata_obj.reflect(bind=self._engine, only=[table_name])
+            # create_table = str(CreateTable(metadata_obj.tables[table]).compile(self._engine))
+            # table_info = f"{create_table.rstrip()}"
+            # has_extra_info = (
+            #     self._indexes_in_table_info or self._sample_rows_in_table_info
+            # )
+            # if has_extra_info:
+            #     table_info += "\n\n/*"
+            get_table_info_query = f"""
+                SELECT c.name AS 'Column Name', t.name AS 'Data Type', c.max_length AS 'Max Length'
+                FROM sys.columns c
+                JOIN sys.types t ON c.user_type_id = t.user_type_id
+                WHERE c.object_id =  object_id('{table}')
+                """
+            table_info = f"Table Name: {table}\n"
+            columns = self.run_no_throw(get_table_info_query)
+            table_info += "(Column Name,Data Type,Max Length)\n" 
+            table_info += str(columns)
+            # col_list = ast.literal_eval(columns)
+            # for col in col_list:
+            #     table_info += f"{col[0]}\t{col[1]}\t{col[2]}\n"
+            # table_info += ")\n"
+
+            get_table_fk_query = f"""
+            SELECT fk.name AS NameOfForeignKey
+                ,t.name AS FKTableName
+                , pc.name AS FKColumn
+                , rt.name AS ReferencedTable
+                , c.name AS ReferencedColumn
+                FROM sys.foreign_key_columns AS fkc
+                INNER JOIN sys.foreign_keys AS fk ON fkc.constraint_object_id = fk.object_id
+                INNER JOIN sys.tables AS t ON fkc.parent_object_id = t.object_id
+                INNER JOIN sys.tables AS rt ON fkc.referenced_object_id = rt.object_id
+                INNER JOIN sys.columns AS pc ON fkc.parent_object_id = pc.object_id
+                AND fkc.parent_column_id = pc.column_id
+                INNER JOIN sys.columns AS c ON fkc.referenced_object_id = c.object_id
+                AND fkc.referenced_column_id = c.column_id
+                where t.object_id=object_id('{table}')
+            """
+            fk_info = self.run_no_throw(get_table_fk_query)
+            if fk_info!='[]':
+                table_info += f"Foreign Key Info: {fk_info}\n"
+
             if self._sample_rows_in_table_info:
-                table_info += f"\n{self._get_sample_rows(table)}\n"
-            if has_extra_info:
-                table_info += "*/"
+                get_sample_rows_query = f"""
+                SELECT TOP {self._sample_rows_in_table_info} *
+                FROM {table}"""
+                sample_rows = self.run_no_throw(get_sample_rows_query)
+                table_info += f"\nSample Rows:\n{sample_rows}\n"
             tables.append(table_info)
         final_str = "\n\n".join(tables)
         return final_str
@@ -485,7 +524,7 @@ class ListSQLDatabaseTool(BaseSQLDatabaseTool, BaseTool):
 
     def _run(self, tool_input: str = "") -> str:
         """Get the schema for a specific table."""
-        return ", ".join(self.db.get_table_names())
+        return ", ".join(self.db.get_usable_table_names())
 
     async def _arun(self, tool_input: str = "") -> str:
         raise NotImplementedError("ListTablesSqlDbTool does not support async")
