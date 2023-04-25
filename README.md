@@ -13,7 +13,7 @@
   - plan for action
   - update its plan with new collected information until goal is achieved
   
-  ![SqlServer_ThoughtProcess.jpg](asset/SqlSever_ThoughtProcess.jpg)
+  ![SqlServer_ThoughtProcess.jpg](asset/SqlSever_ThoughtProcess2.jpg)
 </p>
 
 
