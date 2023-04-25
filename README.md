@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-  <strong>Documentation Assistant with Azure OpenAI</strong>
+  <strong>Database Assistant with Azure OpenAI</strong>
 </p>
 
 <p align="left">
